@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+
+  <!-- The domain library, not the WebApi executable: a tool never references an executable. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ServiceDefaults\ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\src\Domain\Domain\Domain.csproj" />
+  </ItemGroup>
+</Project>

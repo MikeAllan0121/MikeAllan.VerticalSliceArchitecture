@@ -1,0 +1,26 @@
+<!-- A plain SDK project: Aspire 17 made the Aspire.AppHost.Sdk project SDK obsolete (ASPIRE012).
+     Aspire.Hosting.AppHost supplies the AppHost build, and the Aspire CLI supplies the DCP and
+     Dashboard binaries. -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Selects the AppHost's package versions in Directory.Packages.props. -->
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>66dc7fd0-57c4-4258-9d4c-b4f9ef4c6536</UserSecretsId>
+  </PropertyGroup>
+
+  <!-- No ProjectReferences: AppHost.cs registers the WebApi and the Seeder by path with
+       AddDotnetProject, so the AppHost compiles against neither. -->
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Dotnet" />
+    <PackageReference Include="Aspire.Hosting.Azure.ApplicationInsights" />
+    <PackageReference Include="Aspire.Hosting.Azure.AppService" />
+    <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <!-- UseNpgsql for the drop-database command (Commands/). -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+</Project>

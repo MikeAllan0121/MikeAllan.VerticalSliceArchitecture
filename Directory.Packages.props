@@ -1,0 +1,63 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Lets a central PackageVersion override a transitive dependency's resolved
+         version without adding a direct PackageReference. No pin needs it today; it is
+         what a security pin relies on (see .claude/rules/dependencies.md). -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
+    <!-- Keep in step with the dotnet-ef tool (.config/dotnet-tools.json) and the EF Core version
+         Npgsql.EntityFrameworkCore.PostgreSQL (below) is built against (11.0.0). -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="11.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <!-- Prerelease is the only 17.x this package has shipped. It supplies EnrichAzureNpgsqlDbContext,
+         which adds the Entra ID token provider the Azure Flexible Server needs, plus Aspire's retries,
+         health check and telemetry. The build number tracks the stable Aspire 17.0.0 packages, so bump
+         it in lockstep with them, and drop the prerelease once a stable 17.x ships. -->
+    <PackageVersion Include="Aspire.Azure.Npgsql.EntityFrameworkCore.PostgreSQL" Version="17.0.0-preview.1.26567.5" />
+    <!-- Transitive via Aspire.Npgsql.EntityFrameworkCore.PostgreSQL (pulled in by
+         Aspire.Azure.Npgsql.EntityFrameworkCore.PostgreSQL), which resolves 11.0.0-rc.3. That RC pins
+         EF Core to 11.0.0-rc.3.26522.148, which conflicts with Microsoft.EntityFrameworkCore.Design
+         11.0.0 above (NU1107, a restore error). Pinned to the GA release; the AppHost also references it
+         directly for the drop-database command. Retire the pin once the Aspire package resolves 11.0.0+
+         on its own. -->
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0" />
+    <!-- Transitive via Aspire.Npgsql.EntityFrameworkCore.PostgreSQL, which resolves an 11.0.0 RC that
+         would otherwise ship to production. Pinned to the GA release. -->
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="11.0.0" />
+    <!-- Transitive via Aspire.Npgsql.EntityFrameworkCore.PostgreSQL, which resolves 10.0.3 against the
+         Npgsql 11 that the pin above brings. Pinned to match. -->
+    <PackageVersion Include="Npgsql.OpenTelemetry" Version="11.0.0" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="3.2.0" />
+    <PackageVersion Include="Bogus" Version="35.6.5" />
+  </ItemGroup>
+  <ItemGroup Condition="$(IsAspireSharedProject) == 'true'">
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="11.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="11.0.1" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
+  </ItemGroup>
+  <ItemGroup Condition="$(IsAspireHost) == 'true'">
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.ApplicationInsights" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.AppService" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="17.0.0" />
+    <!-- Prerelease is the only channel this package has ever shipped on; there is no stable
+         17.x to move to. The build number tracks the stable Aspire.Hosting.* versions, so
+         bump it in lockstep with them. -->
+    <PackageVersion Include="Aspire.Hosting.EntityFrameworkCore" Version="17.0.0-preview.1.26567.5" />
+  </ItemGroup>
+  <ItemGroup Condition="$(IsTestProject) == 'true'">
+    <PackageVersion Include="xunit.v3" Version="4.0.3" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0" />
+    <PackageVersion Include="Respawn" Version="7.0.0" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.17.0" />
+  </ItemGroup>
+</Project>

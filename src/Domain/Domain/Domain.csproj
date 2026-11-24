@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MikeAllan.VerticalSliceArchitecture.Domain</RootNamespace>
+    <PackageId>MikeAllan.VerticalSliceArchitecture.Domain</PackageId>
+  </PropertyGroup>
+
+  <!-- The shared domain model and its database. No ASP.NET Core reference on purpose: the WebApi and
+       tools (the Seeder) both consume this, and the HTTP-only pieces plug in through IDomainEventDispatcher
+       and ICurrentUserService. -->
+  <ItemGroup>
+    <!-- Brings EF Core and its PostgreSQL provider (Npgsql), plus Aspire's retries, health check and
+         telemetry, and the Entra ID token provider that Azure Database for PostgreSQL needs. -->
+    <PackageReference Include="Aspire.Azure.Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+</Project>

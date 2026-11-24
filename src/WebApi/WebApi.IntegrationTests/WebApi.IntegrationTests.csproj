@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Test folders mirror the production namespace they test, so a test's namespace is this root plus
+         its folder path: Api/Customers/CreateCustomer/ tests MikeAllan.VerticalSliceArchitecture.Api.Customers.CreateCustomer. -->
+    <RootNamespace>MikeAllan.VerticalSliceArchitecture.IntegrationTests</RootNamespace>
+    <PackageId>MikeAllan.VerticalSliceArchitecture.IntegrationTests</PackageId>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- xUnit.net v3 test projects are executables run by Microsoft.Testing.Platform (global.json). -->
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bogus" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Respawn" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebApi\WebApi.csproj" />
+    <ProjectReference Include="..\..\Domain\Domain\Domain.csproj" />
+  </ItemGroup>
+</Project>

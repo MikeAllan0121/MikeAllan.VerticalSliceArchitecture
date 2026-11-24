@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Test folders mirror the namespace they test, minus the Domain library's RootNamespace, so a test's
+         namespace is this root plus its folder path: Customers/ tests MikeAllan.VerticalSliceArchitecture.Domain.Customers. -->
+    <RootNamespace>MikeAllan.VerticalSliceArchitecture.Domain.UnitTests</RootNamespace>
+    <PackageId>MikeAllan.VerticalSliceArchitecture.Domain.UnitTests</PackageId>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- xUnit.net v3 test projects are executables run by Microsoft.Testing.Platform (global.json). -->
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+</Project>

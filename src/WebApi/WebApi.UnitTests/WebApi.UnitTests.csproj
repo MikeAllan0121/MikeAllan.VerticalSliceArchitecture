@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Test folders mirror the production namespace they test, so a test's namespace is this root plus
+         its folder path: Api/Customers/CreateCustomer/ tests MikeAllan.VerticalSliceArchitecture.Api.Customers.CreateCustomer. -->
+    <RootNamespace>MikeAllan.VerticalSliceArchitecture.UnitTests</RootNamespace>
+    <PackageId>MikeAllan.VerticalSliceArchitecture.UnitTests</PackageId>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- xUnit.net v3 test projects are executables run by Microsoft.Testing.Platform (global.json). -->
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebApi\WebApi.csproj" />
+    <ProjectReference Include="..\..\Domain\Domain\Domain.csproj" />
+  </ItemGroup>
+</Project>
