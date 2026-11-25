@@ -25,33 +25,47 @@ dotnet ef migrations has-pending-model-changes --project src/Domain/Domain --sta
 | Path | Contents |
 | --- | --- |
 | `src/Domain/Domain` | Class library: aggregates, `ApplicationDbContext` and migrations, domain events, errors, paging. No ASP.NET Core. |
-| `src/WebApi/WebApi` | Minimal API host. `Api/<Feature>/<Slice>/` holds the slices; sibling folders hold cross-cutting concerns (`ErrorHandling`, `Validation`, `EventualConsistency`, ...). |
+| `src/WebApi/WebApi` | Minimal API host. `Program.cs` sits at the root; everything else is in `Internals/`: `Internals/Api/<Feature>/<Slice>/` holds the slices, sibling folders hold cross-cutting concerns (`ErrorHandling`, `Validation`, `EventualConsistency`, ...), and `Internals/Setup.cs` is the top of the wiring. |
 | `src/ServiceDefaults` | Aspire defaults: OpenTelemetry, health checks, HTTP resilience. |
 | `tools/AppHost` | Aspire orchestration: a PostgreSQL container locally; Azure App Service and PostgreSQL Flexible Server on deploy. |
-| `tools/Seeder` | Dev-only Bogus data. The AppHost adds it in run mode only. |
+| `tools/Seeder` | Dev-only Bogus data. The AppHost adds it in run mode only. Same shape as the WebApi: `Program.cs` calls `Internals/Setup.cs`, which calls `Internals/Seeding/` and `Internals/CurrentUser/`. |
 | `src/**/*Tests` | Domain unit tests, request-validation unit tests, and integration tests against PostgreSQL in Testcontainers. |
 
 ## Architecture
 
-- **One folder per use case.** `Api/Invoices/RecordPayment/` holds that endpoint's handler, request, response
+- **One folder per use case.** `Internals/Api/Invoices/RecordPayment/` holds that endpoint's handler, request, response
   and route mapping. Behaviour and invariants live on the aggregate in the Domain library, so a handler is
   load, call the domain, save.
 - **Explicit wiring.** Each folder that registers anything has a `Setup.cs` of extension members. A `Setup.cs`
   calls only its direct children's, and `Program.cs` calls only the top-level one. Nothing is
   assembly-scanned: endpoints, event handlers, entity configurations and strongly typed IDs are each listed
-  where they are wired. Middleware is added only in the top-level `Setup.UseWebApi`, which owns the order.
+  where they are wired. Middleware is added only in the top-level `Internals/Setup.cs` (`UseWebApi`), which
+  owns the order.
 - **Expected failures are values.** Domain methods return `Result` / `Result<T>` (C# unions) holding a
   `DomainError`, and the API maps it with `error.ToProblem()`. Invalid input is a bug in the caller: the
   domain throws for it, so request validation must reject it first. Every error response is RFC 9457
   problem details.
 - **Domain events** are raised by aggregates and dispatched after `SaveChanges`. The WebApi defers them until
   after the response (eventual consistency); anywhere else (the Seeder, tests seeding data) they run at once.
+- **Optimistic concurrency.** Every aggregate has a row version (PostgreSQL `xmin`), so a save that raced
+  another request fails instead of overwriting it. The WebApi answers that with a 409 problem whose `code` is
+  `Concurrency.Conflict`; nothing was saved, so the client can retry. Event handlers retry it themselves.
+  Details in `.claude/rules/domain.md`.
 
 ## Conventions
 
+- **Visibility.** An executable (the WebApi, the Seeder) keeps everything but `Program.cs` in one top-level
+  `Internals/` folder, never nested, and every type in it is `internal`. Tests reach it through
+  `<InternalsVisibleTo Include="..." />` items in the csproj. A library (Domain) is the opposite: its public
+  types are what consumers use, and its infrastructure (EF configurations, interceptors, inner `Setup`s) is
+  `internal`.
 - Folders name a feature (`Api/Customers`) or a concern (`Validation`), never a kind of code: no `Services/`,
-  `Models/`, `Helpers/` or `Extensions/` folders.
-- Classes and records are `sealed` unless they are designed as a base.
+  `Models/`, `Helpers/` or `Extensions/` folders. `Api/` is fine: it groups the features.
+- Classes and records, including request and response records and the DTOs nested in them, are `sealed`
+  unless they are designed as a base.
+- **Interfaces only on need.** Add one when there are two or more implementations (`IDomainEventDispatcher`),
+  a test needs a fake, a library inverts a dependency on its host (`ICurrentUserService`), or it is an
+  extension point (`IDomainEventHandler<TEvent>`). Otherwise depend on the concrete class.
 - Extension methods are extension members (`extension(IServiceCollection services) { ... }`). The only
   `this`-parameter methods are `[LoggerMessage]` partials, which is how all logging is written.
 - Use explicit types where `var` would hide what a call returns, and collection expressions (`[]`, `[.. items]`).

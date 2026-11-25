@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.CreateCustomer;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.CreateCustomer;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.Api.Customers.CreateCustomer;
 

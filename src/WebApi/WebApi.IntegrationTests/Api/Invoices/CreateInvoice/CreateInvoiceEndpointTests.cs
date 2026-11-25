@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
 using MikeAllan.VerticalSliceArchitecture.Domain.Invoices;
-using MikeAllan.VerticalSliceArchitecture.Api.Invoices.CreateInvoice;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Invoices.CreateInvoice;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.Api.Invoices.CreateInvoice;
 

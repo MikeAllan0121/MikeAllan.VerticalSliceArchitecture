@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
 using MikeAllan.VerticalSliceArchitecture.Domain.Invoices;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.GetCustomer;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.GetCustomer;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.Api.Customers.GetCustomer;
 

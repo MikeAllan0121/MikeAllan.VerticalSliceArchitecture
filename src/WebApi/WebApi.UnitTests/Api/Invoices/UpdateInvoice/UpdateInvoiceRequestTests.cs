@@ -1,5 +1,5 @@
 using MikeAllan.VerticalSliceArchitecture.Domain.Invoices;
-using MikeAllan.VerticalSliceArchitecture.Api.Invoices.UpdateInvoice;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Invoices.UpdateInvoice;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Api.Invoices.UpdateInvoice;
 

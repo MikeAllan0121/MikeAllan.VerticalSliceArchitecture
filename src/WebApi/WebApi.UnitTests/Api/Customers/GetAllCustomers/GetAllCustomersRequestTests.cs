@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.GetAllCustomers;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.GetAllCustomers;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Api.Customers.GetAllCustomers;
 

@@ -10,9 +10,13 @@ xUnit v3 on Microsoft.Testing.Platform (`global.json`), so test projects are exe
 
 ## Shape
 
-- A test file's folder and namespace mirror the code it tests:
-  `WebApi.IntegrationTests/Api/Invoices/RecordPayment/RecordPaymentEndpointTests.cs` is in
-  `...IntegrationTests.Api.Invoices.RecordPayment`.
+- A test file's folder and namespace mirror the code it tests, from below `Internals/`:
+  `WebApi.IntegrationTests/Api/Invoices/RecordPayment/RecordPaymentEndpointTests.cs` tests
+  `WebApi/Internals/Api/Invoices/RecordPayment/` and is in `...IntegrationTests.Api.Invoices.RecordPayment`.
+  `Internals/` is a visibility boundary, not a feature, so test projects don't repeat it.
+- The WebApi's types are `internal`; its csproj grants the test projects access with `InternalsVisibleTo`.
+  Helpers in a test project are `internal` too, unless xUnit needs them public (test classes, fixtures,
+  collection definitions, `IntegrationTestBase`).
 - Classes are `public sealed`. Names read `Subject_Condition_ShouldOutcome`
   (`RecordPayment_WhenDraft_ShouldError`, `Post_WhenInvoiceDoesNotExist_ShouldReturnNotFoundProblem`).
 - Bodies are marked `// Arrange`, `// Act`, `// Assert`. A comment above a test says why the case matters
@@ -39,3 +43,9 @@ xUnit v3 on Microsoft.Testing.Platform (`global.json`), so test projects are exe
 - Domain events raised during a request run after the response, so poll for their effect with
   `Wait.UntilAsync`. Events raised while seeding run inside that `SaveChanges`, so seed the customer before an
   issued invoice.
+- To test a lost concurrency race deterministically, create a client with
+  `fixture.CreateClient(new ConcurrentWriteInterceptor<TEntity>(fixture.ConnectionString, write))`. Just before
+  the app's first save that modifies a `TEntity`, it commits `write` (an `ExecuteUpdateAsync` on the same row)
+  from another connection, then lets the save fail on the row version. It fires once, so a retry goes
+  through. For the real thing, also race requests with `Task.WhenAll` and assert invariants that hold
+  whichever request wins (nothing overpaid, every 204 saved, balances settle).

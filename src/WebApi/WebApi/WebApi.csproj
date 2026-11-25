@@ -15,6 +15,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- Everything under Internals/ is internal; the tests exercise the request types, endpoints and
+       concerns directly, so they see it. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="WebApi.UnitTests" />
+    <InternalsVisibleTo Include="WebApi.IntegrationTests" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\ServiceDefaults\ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Domain\Domain\Domain.csproj" />

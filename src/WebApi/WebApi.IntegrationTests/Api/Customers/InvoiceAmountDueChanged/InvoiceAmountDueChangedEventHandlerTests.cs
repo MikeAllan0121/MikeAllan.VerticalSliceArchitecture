@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
 using MikeAllan.VerticalSliceArchitecture.Domain.Invoices;
 using MikeAllan.VerticalSliceArchitecture.Domain.Pagination;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.GetAllCustomers;
-using MikeAllan.VerticalSliceArchitecture.Api.Invoices.RecordPayment;
-using MikeAllan.VerticalSliceArchitecture.Api.Invoices.UpdateInvoice;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.GetAllCustomers;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Invoices.RecordPayment;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Invoices.UpdateInvoice;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.Api.Customers.InvoiceAmountDueChanged;
 
@@ -16,6 +16,70 @@ namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.Api.Customers.Inv
 /// </summary>
 public sealed class InvoiceAmountDueChangedEventHandlerTests(TestingDatabaseFixture fixture) : IntegrationTestBase(fixture)
 {
+    private readonly TestingDatabaseFixture _fixture = fixture;
+
+    // Another handler saved the customer between this one loading it and saving it. Its save fails on the
+    // row version, so it reloads and recalculates rather than writing a balance computed from a stale read.
+    [Fact]
+    public async Task RecalculationThatLosesARace_ShouldRetryAndLeaveTheBalanceCorrect()
+    {
+        // Arrange
+        Customer customer = CustomerFactory.Generate();
+        await AddAsync(customer);
+        Invoice invoice = Invoice.Create(customer.Id, [new InvoiceLine("Consulting", 2, 150m)]);
+        invoice.Issue();
+        await AddAsync(invoice);
+
+        ConcurrentWriteInterceptor<Customer> otherHandler = new(
+            _fixture.ConnectionString,
+            (db, modified) => db.Customers
+                .Where(c => c.Id == modified.Id)
+                .ExecuteUpdateAsync(set => set.SetProperty(c => c.UpdatedBy, "OtherHandler"), CancellationToken));
+        using HttpClient client = _fixture.CreateClient(otherHandler);
+
+        // Act
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/api/invoices/{invoice.Id.Value}/payments", new RecordPaymentRequest(120m), CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        bool recalculated = await WaitForBalanceAsync(customer.Id, 180m);
+        Assert.True(otherHandler.Fired, "The handler's first save was never interrupted.");
+        Assert.True(recalculated, "The customer's OutstandingBalance was not recalculated to 180 after the retry.");
+    }
+
+    // Different invoices, so the payments themselves don't conflict, but every one raises an event whose
+    // handler rewrites the same customer's balance. Whichever saves last must have seen every payment.
+    [Fact]
+    public async Task PayingSeveralInvoicesAtOnce_ShouldLeaveTheBalanceCorrect()
+    {
+        // Arrange
+        const int invoiceCount = 5;
+        Customer customer = CustomerFactory.Generate();
+        await AddAsync(customer);
+        List<Invoice> invoices = [];
+        for (int i = 0; i < invoiceCount; i++)
+        {
+            Invoice invoice = Invoice.Create(customer.Id, [new InvoiceLine("Consulting", 1, 100m)]);
+            invoice.Issue();
+            invoices.Add(invoice);
+        }
+
+        await AddRangeAsync(invoices);
+
+        // Act
+        HttpResponseMessage[] responses = await Task.WhenAll(invoices.Select(invoice =>
+            Client.PostAsJsonAsync(
+                $"/api/invoices/{invoice.Id.Value}/payments", new RecordPaymentRequest(100m), CancellationToken)));
+
+        // Assert
+        Assert.All(responses, response => Assert.Equal(HttpStatusCode.NoContent, response.StatusCode));
+
+        bool settled = await WaitForBalanceAsync(customer.Id, 0m);
+        Assert.True(settled, "The customer's OutstandingBalance did not settle at 0 after every invoice was paid.");
+    }
+
     [Fact]
     public async Task IssuingAnInvoice_ShouldRecalculateTheCustomersOutstandingBalance()
     {

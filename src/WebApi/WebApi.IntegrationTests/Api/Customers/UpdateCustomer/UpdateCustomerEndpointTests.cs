@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
 using MikeAllan.VerticalSliceArchitecture.Domain.Errors;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.UpdateCustomer;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.UpdateCustomer;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.Api.Customers.UpdateCustomer;
 

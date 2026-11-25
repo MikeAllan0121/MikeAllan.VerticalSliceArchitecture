@@ -16,6 +16,9 @@ explain why it is built that way.
 - **Minimal APIs** with `TypedResults`, built-in DataAnnotations validation, an OpenAPI document and the
   Scalar UI.
 - **Eventual consistency.** Domain events raised during a request are handled after the response is sent.
+- **Optimistic concurrency.** Every aggregate carries PostgreSQL's `xmin` as a row version, so two requests
+  racing on one invoice can't both pass the amount-due check. The loser gets a 409 problem with `code`
+  `Concurrency.Conflict` and can retry; event handlers retry on their own.
 - **EF Core 11 on PostgreSQL**, with composable query extension members, sort allow-lists, stable paging and
   automatic auditing.
 - **Aspire 17.** One command runs everything locally, and the same AppHost deploys to Azure with managed
@@ -93,14 +96,15 @@ src/
 │   └── Domain.UnitTests/
 ├── WebApi/
 │   ├── WebApi/
-│   │   ├── Api/
-│   │   │   ├── Customers/         # one folder per slice: CreateCustomer/, GetCustomer/, ...
-│   │   │   └── Invoices/
-│   │   ├── ErrorHandling/         # cross-cutting concerns, each with its own Setup.cs
-│   │   ├── EventualConsistency/
-│   │   ├── Validation/
-│   │   ├── ...
-│   │   ├── Setup.cs               # the top of the wiring tree; Program.cs calls only this
+│   │   ├── Internals/             # everything but Program.cs; every type in here is internal
+│   │   │   ├── Api/
+│   │   │   │   ├── Customers/     # one folder per slice: CreateCustomer/, GetCustomer/, ...
+│   │   │   │   └── Invoices/
+│   │   │   ├── ErrorHandling/     # cross-cutting concerns, each with its own Setup.cs
+│   │   │   ├── EventualConsistency/
+│   │   │   ├── Validation/
+│   │   │   ├── ...
+│   │   │   └── Setup.cs           # the top of the wiring tree; Program.cs calls only this
 │   │   └── Program.cs
 │   ├── WebApi.UnitTests/          # request validation
 │   └── WebApi.IntegrationTests/   # the real app against PostgreSQL (Testcontainers)
@@ -108,12 +112,21 @@ src/
 tools/
 ├── AppHost/                       # Aspire: local orchestration and Azure deployment
 └── Seeder/                        # development seed data, never deployed
+    ├── Internals/
+    │   ├── CurrentUser/           # the fixed "Seeder" identity for auditing
+    │   ├── Seeding/               # the Bogus data and the worker that writes it once
+    │   └── Setup.cs
+    └── Program.cs
 ```
+
+An executable has no consumers, so nothing in it is public: the WebApi and the Seeder keep everything but
+`Program.cs` under one `Internals/` folder, and the test projects see it through `InternalsVisibleTo`. The
+Domain library is the opposite: its public types are what the API and the Seeder use.
 
 A slice looks like this:
 
 ```text
-Api/Invoices/RecordPayment/
+Internals/Api/Invoices/RecordPayment/
 ├── RecordPaymentEndpoint.cs           # Handle(): load the invoice, call invoice.RecordPayment(), save
 ├── RecordPaymentRequest.cs            # the body, with its validation rules
 └── RouteGroupBuilderExtensions.cs     # MapRecordPayment(): route and OpenAPI metadata

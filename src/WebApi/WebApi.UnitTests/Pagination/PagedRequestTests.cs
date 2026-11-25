@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using MikeAllan.VerticalSliceArchitecture.Domain.Pagination;
-using MikeAllan.VerticalSliceArchitecture.Pagination;
+using MikeAllan.VerticalSliceArchitecture.Internals.Pagination;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Pagination;
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MikeAllan.VerticalSliceArchitecture.Domain.Auditing;
+using MikeAllan.VerticalSliceArchitecture.Domain.Concurrency;
 
 namespace MikeAllan.VerticalSliceArchitecture.Domain.Invoices;
 
@@ -8,6 +9,9 @@ internal sealed class InvoiceConfiguration : AuditableConfiguration<Invoice>
     public override void PostConfigure(EntityTypeBuilder<Invoice> builder)
     {
         builder.HasKey(i => i.Id);
+
+        // Two concurrent payments must not both pass the amount-due check; see HasRowVersion.
+        builder.HasRowVersion();
 
         builder.Property(i => i.Total)
             .HasPrecision(18, 2);

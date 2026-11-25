@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- Test folders mirror the production namespace they test, so a test's namespace is this root plus
-         its folder path: Api/Customers/CreateCustomer/ tests MikeAllan.VerticalSliceArchitecture.Api.Customers.CreateCustomer. -->
+         its folder path: Api/Customers/CreateCustomer/ tests MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.CreateCustomer. -->
     <RootNamespace>MikeAllan.VerticalSliceArchitecture.IntegrationTests</RootNamespace>
     <PackageId>MikeAllan.VerticalSliceArchitecture.IntegrationTests</PackageId>
     <IsPackable>false</IsPackable>

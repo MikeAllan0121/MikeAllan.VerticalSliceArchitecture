@@ -5,7 +5,7 @@ using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
 using MikeAllan.VerticalSliceArchitecture.Domain.DomainEvents;
 using MikeAllan.VerticalSliceArchitecture.Domain.Errors;
 using MikeAllan.VerticalSliceArchitecture.Domain.Invoices;
-using MikeAllan.VerticalSliceArchitecture.EventualConsistency;
+using MikeAllan.VerticalSliceArchitecture.Internals.EventualConsistency;
 using static MikeAllan.VerticalSliceArchitecture.IntegrationTests.EventualConsistency.CapturingLoggerProvider;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.EventualConsistency;

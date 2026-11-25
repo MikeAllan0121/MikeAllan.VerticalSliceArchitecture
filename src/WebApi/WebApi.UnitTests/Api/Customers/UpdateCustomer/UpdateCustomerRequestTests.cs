@@ -1,5 +1,5 @@
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.UpdateCustomer;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.UpdateCustomer;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Api.Customers.UpdateCustomer;
 

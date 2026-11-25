@@ -16,7 +16,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261123133608_Initial";
+    public override string LastMigrationId => "20261125112221_AddRowVersions";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -61,6 +61,12 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(128)
                     .HasColumnType("character varying(128)");
 
+                b.Property<uint>("Version")
+                    .IsConcurrencyToken()
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("xid")
+                    .HasColumnName("xmin");
+
                 b.HasKey("Id");
 
                 b.ToTable("Customers");
@@ -99,6 +105,12 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Property<string>("UpdatedBy")
                     .HasMaxLength(128)
                     .HasColumnType("character varying(128)");
+
+                b.Property<uint>("Version")
+                    .IsConcurrencyToken()
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasColumnType("xid")
+                    .HasColumnName("xmin");
 
                 b.HasKey("Id");
 

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
 using MikeAllan.VerticalSliceArchitecture.Domain.Invoices;
 using MikeAllan.VerticalSliceArchitecture.Domain.Pagination;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.GetAllCustomers;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.GetAllCustomers;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests.Api.Customers.GetAllCustomers;
 

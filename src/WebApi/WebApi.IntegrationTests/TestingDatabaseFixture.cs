@@ -1,5 +1,9 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using MikeAllan.VerticalSliceArchitecture.Domain.Database;
 
 namespace MikeAllan.VerticalSliceArchitecture.IntegrationTests;
 
@@ -27,6 +31,14 @@ public sealed class TestingDatabaseFixture : IAsyncLifetime
     /// <summary>A client for the same app with extra test configuration, such as replaced services.</summary>
     public HttpClient CreateClient(Action<IWebHostBuilder> configure) =>
         _factory.WithWebHostBuilder(configure).CreateClient();
+
+    /// <summary>A client for the same app whose <see cref="ApplicationDbContext"/> also runs <paramref name="interceptor"/>.</summary>
+    public HttpClient CreateClient(IInterceptor interceptor) =>
+        CreateClient(builder => builder.ConfigureTestServices(services =>
+            services.ConfigureDbContext<ApplicationDbContext>(options => options.AddInterceptors(interceptor))));
+
+    /// <summary>The test database, for a test that writes to it from outside the app.</summary>
+    public string ConnectionString => _database.ConnectionString;
 
     public IServiceScope CreateScope() => _factory.Services.CreateScope();
 

@@ -1,5 +1,5 @@
 using MikeAllan.VerticalSliceArchitecture.Domain.Customers;
-using MikeAllan.VerticalSliceArchitecture.Api.Customers.CreateCustomer;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Customers.CreateCustomer;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Api.Customers.CreateCustomer;
 

@@ -1,4 +1,4 @@
-using MikeAllan.VerticalSliceArchitecture.Api.Invoices.GetAllInvoices;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Invoices.GetAllInvoices;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Api.Invoices.GetAllInvoices;
 

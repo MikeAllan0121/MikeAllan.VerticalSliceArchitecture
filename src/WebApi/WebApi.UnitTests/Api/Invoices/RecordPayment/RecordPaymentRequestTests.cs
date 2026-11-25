@@ -1,4 +1,4 @@
-using MikeAllan.VerticalSliceArchitecture.Api.Invoices.RecordPayment;
+using MikeAllan.VerticalSliceArchitecture.Internals.Api.Invoices.RecordPayment;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Api.Invoices.RecordPayment;
 

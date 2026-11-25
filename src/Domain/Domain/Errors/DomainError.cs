@@ -2,7 +2,7 @@ namespace MikeAllan.VerticalSliceArchitecture.Domain.Errors;
 
 /// <summary>
 /// An expected business-rule failure: one of a closed set of kinds, each mapped to an HTTP status in one
-/// place (the WebApi's <c>ErrorHandling.DomainErrorExtensions</c>).
+/// place (the WebApi's <c>Internals/ErrorHandling/DomainErrorExtensions</c>).
 /// </summary>
 /// <remarks>
 /// To add a kind (e.g. <c>ForbiddenError</c>): declare a <c>sealed record ForbiddenError(string Code, string Description)</c>

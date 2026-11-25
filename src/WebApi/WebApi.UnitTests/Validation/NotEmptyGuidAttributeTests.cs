@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using MikeAllan.VerticalSliceArchitecture.Validation;
+using MikeAllan.VerticalSliceArchitecture.Internals.Validation;
 
 namespace MikeAllan.VerticalSliceArchitecture.UnitTests.Validation;
 
